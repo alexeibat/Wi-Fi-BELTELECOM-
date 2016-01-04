@@ -1,0 +1,136 @@
+rem @echo off
+rem NodUvaga Torrenter v0.1.5 beta
+cd /d "%USERPROFILE%\noduvaga"
+
+cd /d "%USERPROFILE%\noduvaga\torrent"
+del /q "%USERPROFILE%\noduvaga\torrent\n*.*"
+del /q "%USERPROFILE%\noduvaga\torrent\b*.*"
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/end.cmd
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/force.cmd
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/link.cmd
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/setup.cmd
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/uninstall.cmd
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/torrenter/torrenter.cmd
+xcopy /y /s "%USERPROFILE%\noduvaga\torrent\*.cmd" "%USERPROFILE%\noduvaga\*.*"
+del /q "%USERPROFILE%\noduvaga\torrent\*.cmd"
+
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/base.ver
+wget.exe --user-agent=Mozilla/5.0 --tries=3 http://nod.uvaga.by/noduvaga.torrent
+
+cd /d "%USERPROFILE%\noduvaga\"
+set $nuz=1
+if not exist "%USERPROFILE%\noduvaga\torrenter.ini" "%USERPROFILE%\noduvaga\setup.cmd"
+if not exist "%USERPROFILE%\noduvaga\base.ver" goto nov
+
+set $basev0=0
+set $basev1=0
+
+setlocal enableextensions enabledelayedexpansion
+set sInFile=.\base.ver
+for /f "usebackq tokens=1,2 delims==" %%i in ("%sInFile%") do (set %%i=%%j)
+set $basev0=%basev%
+
+setlocal enableextensions enabledelayedexpansion
+set sInFile=.\torrent\base.ver
+for /f "usebackq tokens=1,2 delims==" %%i in ("%sInFile%") do (set %%i=%%j)
+set $basev1=%basev%
+
+if %$basev1% LEQ %$basev0% (set $nuz=0)
+:nov
+setlocal enableextensions enabledelayedexpansion
+set sInFile=.\torrenter.ini
+for /f "usebackq tokens=1,2 delims==" %%i in ("%sInFile%") do (set %%i=%%j)
+
+set "$ver="& for /f "tokens=2*" %%a in (
+'REG QUERY "HKLM\SOFTWARE\ESET\ESET Security\CurrentVersion\Info" /v ProductVersion ^|Find "REG_SZ"'
+) do set "$ver=%%b"
+set "$ver=%$ver:~0,1%"
+if %$ver% == 8  (set "$ver=7")
+
+nircmd.exe execmd rd /s /q "~$folder.programs$\NodUvaga\Torrenter" 
+nircmd.exe execmd rd /s /q "~$folder.common_programs$\NodUvaga\Torrenter"
+nircmd shortcut "%USERPROFILE%\noduvaga\torrenter.cmd" "~$folder.programs$\NodUvaga\Torrenter" "Torrenter"
+nircmd shortcut "%USERPROFILE%\noduvaga\force.cmd" "~$folder.programs$\NodUvaga\Torrenter" "ЏаЁ­г¤ЁвҐ«м­ п § Јаг§Є "
+nircmd shortcut "%USERPROFILE%\noduvaga\link.cmd" "~$folder.programs$\NodUvaga\Torrenter" "Џгвм ®Ў­®ў«Ґ­Ёп ¤«пяNOD32"
+nircmd shortcut "%USERPROFILE%\noduvaga\setup.cmd" "~$folder.programs$\NodUvaga\Torrenter" "Ќ бва®©Є " 
+nircmd urlshortcut "http://nod.uvaga.by/torrenter.html" "~$folder.programs$\NodUvaga\Torrenter" "‘ ©в Їа®Ја ¬¬л NodUvaga Torrenter" 
+nircmd shortcut "%USERPROFILE%\noduvaga\uninstall.cmd" "~$folder.programs$\NodUvaga\Torrenter" "“¤ «Ёвм Torrenter" 
+nircmd shortcut "%USERPROFILE%\noduvaga\torrenter.cmd" "~$folder.desktop$" "NodUvaga Torrenter"
+
+taskkill /F /IM uTorrent1.exe
+nircmd.exe wait 3000
+if %$nuz% == 1 (
+del /q resume*.*
+rd /q /s "%USERPROFILE%\noduvaga\upd"
+xcopy /y "%USERPROFILE%\noduvaga\torrent\noduvaga.torrent" "%USERPROFILE%\noduvaga\"
+xcopy /y "%USERPROFILE%\noduvaga\torrent\base.ver" "%USERPROFILE%\noduvaga\"
+
+nircmd exec show "utorrent1.exe" /RECOVER
+nircmd.exe wait 3000
+nircmd sendkey ctrl down 
+nircmd sendkey d down 
+nircmd sendkey ctrl up 
+nircmd sendkey d up
+nircmd clipboard set "%USERPROFILE%\noduvaga\noduvaga.torrent"
+nircmd.exe wait 500
+nircmd sendkey ctrl down   
+nircmd sendkey v down   
+nircmd sendkey ctrl up   
+nircmd sendkey v up
+nircmd.exe wait 1000
+nircmd sendkey enter press
+nircmd clipboard set "%USERPROFILE%\noduvaga\upd\"
+nircmd.exe wait 500
+nircmd sendkey ctrl down   
+nircmd sendkey v down   
+nircmd sendkey ctrl up   
+nircmd sendkey v up 
+nircmd.exe wait 1000
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 100
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 100
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 100
+
+if %ex% NEQ 3  (nircmd.exe sendkey spc press
+nircmd.exe wait 100
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 100
+nircmd.exe sendkey %$ver% press
+nircmd.exe wait 100
+nircmd.exe sendkey spc press)
+nircmd.exe wait 100
+if %ex% == 3  (nircmd.exe sendkey TAB press)
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 1000
+nircmd.exe sendkey spc press
+nircmd.exe wait 100
+nircmd sendkey shift down 
+nircmd sendkey tab down 
+nircmd sendkey shift up 
+nircmd sendkey tab up
+nircmd.exe wait 100
+nircmd.exe sendkey right press
+nircmd.exe wait 100
+nircmd.exe sendkey 0x09 press
+nircmd.exe wait 100
+nircmd.exe sendkey 0x09 press
+nircmd clipboard set "end.cmd"
+nircmd.exe wait 500
+nircmd sendkey ctrl down   
+nircmd sendkey v down   
+nircmd sendkey ctrl up   
+nircmd sendkey v up 
+nircmd.exe wait 500
+nircmd sendkey enter press
+nircmd.exe wait 100
+nircmd sendkey enter press
+nircmd.exe wait 100
+nircmd sendkey alt down   
+nircmd sendkey f4 down   
+nircmd sendkey alt up   
+nircmd sendkey f4 up 
+)
+if %$nuz% == 0 (nircmd exec hide "utorrent1.exe" /RECOVER)
+
